@@ -58,8 +58,10 @@ Face à ce constat, l'audit s'est orienté vers une recherche ciblée de vulnér
 Exploitation de la faille **CVE-2014-3704 (Drupalgeddon)**. Cette vulnérabilité dans l'API de base de données de Drupal permet d'injecter des commandes SQL sans authentification.
 * **Action :** Injection d'un nouvel utilisateur dans la table `users` avec les droits Administrateur.
 * **Résultat :** Accès au panneau d'administration du CMS.
-
+  
 ![Exploit SQLi](demo/02_python_exploit.png)
+
+**[Obtenir le script Python](script/exploit-drupal-cve-2014-3704.py)**
 
 ### Étape 2 : Exécution de code (RCE & Reverse Shell)
 Une fois connecté en tant qu'administrateur, utilisation du module natif **PHP Filter**. Ce module, mal configuré, permet d'exécuter du code PHP arbitraire dans les pages du site.
